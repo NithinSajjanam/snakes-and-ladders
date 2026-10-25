@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="google-adsense-account" content="ca-pub-7221059527022795">
+<title>Snakes and Ladders</title>
+<style>
+:root{--bg:#e8f4ef;--card:#fff;--ink:#1f2433;--mute:#55627a;--a:#0f766e;--on:#fff;--line:#c7ddd5;--gold:#d99a1e;--wood:#8a5a2b;--k0:#ffe1a0;--k1:#ffc6cf;--k2:#b9ecd9;--k3:#bcdcff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e2224;--card:#16393b;--ink:#eaf6f2;--mute:#9fc0b8;--a:#4fd1be;--on:#0e2224;--line:#25514f;--wood:#d9a15f;--k0:#6e5314;--k1:#6b2a3c;--k2:#1c5f4b;--k3:#254b78}}
+:root[data-theme="dark"]{--bg:#0e2224;--card:#16393b;--ink:#eaf6f2;--mute:#9fc0b8;--a:#4fd1be;--on:#0e2224;--line:#25514f;--wood:#d9a15f;--k0:#6e5314;--k1:#6b2a3c;--k2:#1c5f4b;--k3:#254b78}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 ui-rounded,"Trebuchet MS",system-ui,sans-serif}
+.w{max-width:560px;margin:0 auto;padding:16px 14px 36px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+h1{font-size:clamp(1.7rem,7vw,2.3rem);line-height:1.05;margin:0;letter-spacing:-.02em;font-weight:900}
+h2{margin:18px 0 10px;font-size:1.15rem}
+.sub{color:var(--mute);margin:4px 0 6px}
+button{font:inherit;color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:12px;padding:9px 14px;cursor:pointer}
+button:focus-visible{outline:3px solid var(--a);outline-offset:2px}
+button:disabled{opacity:.5;cursor:default}
+.big{background:var(--a);border-color:var(--a);color:var(--on);font-weight:800;font-size:1.05rem;padding:12px 24px}
+#snd{font-size:1.2rem;padding:6px 10px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opts button{padding:16px 10px;font-weight:700}
+.opts button:hover{border-color:var(--a)}
+details{margin-top:18px;color:var(--mute)}
+summary{cursor:pointer;color:var(--ink);font-weight:700}
+#chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.chip{display:flex;align-items:center;gap:7px;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:4px 12px 4px 6px;font-size:.9rem}
+.chip.act{border-color:var(--a);box-shadow:0 0 0 2px var(--a)}
+.chip em{color:var(--mute);font-style:normal}
+.sw{width:18px;height:18px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+#bw{padding-bottom:44px}
+#board{position:relative;width:100%;aspect-ratio:1;border:6px solid var(--gold);border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.18);overflow:visible}
+#cells{position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);border-radius:7px;overflow:hidden}
+.c{position:relative}
+.c i{position:absolute;top:2px;left:3px;font-style:normal;font-size:clamp(.5rem,2.3vw,.78rem);font-weight:700;opacity:.7}
+.c b{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(.9rem,4vw,1.4rem)}
+#art,#toks{position:absolute;inset:0;width:100%;height:100%}
+#art{pointer-events:none}
+#art .rail{stroke:var(--wood);stroke-width:.9;stroke-linecap:round}
+#art .rung{stroke:var(--wood);stroke-width:.7;stroke-linecap:round}
+#toks{pointer-events:none}
+.tok{position:absolute;width:5.4%;aspect-ratio:1;margin:-2.7% 0 0 -2.7%;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,.4);transition:left .19s ease,top .19s ease;z-index:2}
+.tok::after{content:"";position:absolute;left:22%;top:16%;width:30%;height:30%;border-radius:50%;background:rgba(255,255,255,.55)}
+.tok.slide{transition-duration:.75s}
+.tok.act{animation:pulse 1.1s ease-in-out infinite;z-index:3}
+@keyframes pulse{50%{transform:scale(1.22)}}
+.ctl{display:flex;align-items:center;gap:16px;margin-top:6px}
+.die{flex:none;width:68px;height:68px;padding:9px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);background:var(--card);border:2px solid var(--line);border-radius:16px;box-shadow:0 3px 8px rgba(0,0,0,.15)}
+.die span{border-radius:50%;margin:12%}
+.die span.on{background:var(--ink)}
+.die.rolling{animation:wob .3s linear infinite}
+@keyframes wob{25%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}
+.st{font-weight:700;min-height:2.9em;margin:8px 0 0}
+.ov{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(10,20,25,.6);padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px)}
+.ov[hidden],#setup[hidden],#play[hidden]{display:none}
+.ov .card{background:var(--card);border-radius:20px;padding:26px 24px;text-align:center;max-width:340px;width:100%}
+.ov .t{font-size:3.2rem}
+.ov h2{font-size:1.5rem;margin:6px 0 16px}
+.ov .card button{margin:4px}
+.cf{position:fixed;top:-16px;width:9px;height:14px;z-index:30;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(720deg)}}
+@media (prefers-reduced-motion:reduce){.tok.act,.die.rolling{animation:none}.tok{transition:none}}
+</style>
+</head>
+<body>
+<div class="w">
+<header>
+<div><h1>Snakes and Ladders</h1><p class="sub">Race to square 100. Ladders lift you up, snakes slide you down.</p></div>
+<button id="snd" aria-label="Sound is on, tap to mute">🔊</button>
+</header>
+
+<section id="setup">
+<h2>How many players?</h2>
+<div class="opts">
+<button data-n="1">You vs computer</button>
+<button data-n="2">2 players</button>
+<button data-n="3">3 players</button>
+<button data-n="4">4 players</button>
+</div>
+<details open>
+<summary>How to play</summary>
+<p>Take turns rolling the die and move your token that many squares. If you land at the bottom of a ladder, climb to the top. If you land on a snake’s head, slide down to its tail. Roll a 6 to go again. You must land exactly on 100 to win, so if your roll is too big you stay where you are.</p>
+</details>
+</section>
+
+<section id="play" hidden>
+<div id="chips"></div>
+<div id="bw">
+<div id="board"><div id="cells"></div><svg id="art" viewBox="0 0 100 100" aria-hidden="true"></svg><div id="toks"></div></div>
+</div>
+<div class="ctl">
+<div id="die" class="die" aria-hidden="true"></div>
+<button id="roll" class="big">Roll</button>
+</div>
+<p id="msg" class="st" aria-live="polite"></p>
+<p><button id="newg">New game</button></p>
+</section>
+</div>
+
+<div id="win" class="ov" role="dialog" aria-modal="true" aria-labelledby="wt" hidden>
+<div class="card"><div class="t">🏆</div><h2 id="wt"></h2><button id="pa" class="big">Play again</button><button id="cp">Change players</button></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SN = {16:6,47:26,49:11,56:53,62:19,64:60,87:24,93:73,95:75,98:78};
+const LD = {1:38,4:14,9:31,21:42,28:84,36:44,51:67,71:91,80:100};
+const JUMP = {...SN, ...LD};
+const COL = [['Red','#e63946'],['Blue','#2f6bff'],['Yellow','#ffc93c'],['Green','#2aa876']];
+const SC = ['#2a9d6f','#e76f51','#7b4bd1','#d99100','#1f77b4'];
+const PIPS = [[],[4],[0,8],[0,4,8],[0,2,6,8],[0,2,4,6,8],[0,2,3,5,6,8]];
+const sleep = ms => new Promise(r => setTimeout(r, RM ? ms / 5 : ms));
+
+let P = [], toks = [], turn = 0, busy = false, over = false, count = 2, muted = false, ac;
+
+/* sound */
+function beep(f, d = .08, type = 'sine', v = .06, when = 0) {
+  if (muted) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const t = ac.currentTime + when, o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + d);
+  } catch (e) {}
+}
+$('#snd').onclick = () => {
+  muted = !muted;
+  $('#snd').textContent = muted ? '🔇' : '🔊';
+  $('#snd').setAttribute('aria-label', muted ? 'Sound is off, tap to unmute' : 'Sound is on, tap to mute');
+};
+
+/* board */
+const xy = n => { const r = (n - 1) / 10 | 0, k = (n - 1) % 10, c = r % 2 ? 9 - k : k; return [c * 10 + 5, (9 - r) * 10 + 5]; };
+
+function ladderSvg(a, b) {
+  const [x1, y1] = xy(a), [x2, y2] = xy(b), dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+  const nx = -dy / len * 1.4, ny = dx / len * 1.4, steps = Math.max(2, Math.round(len / 4.5));
+  let s = `<line class="rail" x1="${x1 + nx}" y1="${y1 + ny}" x2="${x2 + nx}" y2="${y2 + ny}"/><line class="rail" x1="${x1 - nx}" y1="${y1 - ny}" x2="${x2 - nx}" y2="${y2 - ny}"/>`;
+  for (let i = 1; i < steps; i++) {
+    const t = i / steps;
+    s += `<line class="rung" x1="${x1 + nx + dx * t}" y1="${y1 + ny + dy * t}" x2="${x1 - nx + dx * t}" y2="${y1 - ny + dy * t}"/>`;
+  }
+  return s;
+}
+
+function snakeSvg(h, t, i) {
+  const [x1, y1] = xy(h), [x2, y2] = xy(t), dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+  const px = -dy / len, py = dx / len, a = (i % 2 ? 1 : -1) * Math.min(9, len * .28), col = SC[i % SC.length];
+  const d = `M${x1} ${y1} C${x1 + dx * .2 + px * a} ${y1 + dy * .2 + py * a} ${x1 + dx * .8 - px * a} ${y1 + dy * .8 - py * a} ${x2} ${y2}`;
+  return `<path d="${d}" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="3" stroke-linecap="round" transform="translate(.4 .5)"/>
+  <path d="${d}" fill="none" stroke="${col}" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="${d}" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2.6" stroke-dasharray="1.1 3.3"/>
+  <circle cx="${x1}" cy="${y1}" r="2.7" fill="${col}"/>
+  <circle cx="${x1 - 1}" cy="${y1 - .8}" r=".8" fill="#fff"/><circle cx="${x1 + 1}" cy="${y1 - .8}" r=".8" fill="#fff"/>
+  <circle cx="${x1 - 1}" cy="${y1 - .8}" r=".35" fill="#111"/><circle cx="${x1 + 1}" cy="${y1 - .8}" r=".35" fill="#111"/>
+  <path d="M${x1} ${y1 + 2.5}v1.5m0 0l-.7.8m.7-.8l.7.8" stroke="#e63946" stroke-width=".45" fill="none" stroke-linecap="round"/>`;
+}
+
+(function build() {
+  let h = '';
+  for (let r = 9; r >= 0; r--) for (let c = 0; c < 10; c++) {
+    const n = r * 10 + (r % 2 ? 10 - c : c + 1);
+    h += `<div class="c" style="background:var(--k${(r + c) % 4})"><i>${n}</i>${n == 100 ? '<b>🏁</b>' : ''}</div>`;
+  }
+  $('#cells').innerHTML = h;
+  $('#art').innerHTML = Object.entries(LD).map(([a, b]) => ladderSvg(+a, b)).join('') +
+    Object.entries(SN).map(([a, b], i) => snakeSvg(+a, b, i)).join('');
+})();
+
+/* dice */
+const die = $('#die');
+function face(v) { die.innerHTML = Array.from({length: 9}, (_, i) => `<span class="${PIPS[v].includes(i) ? 'on' : ''}"></span>`).join(''); }
+function rollDie() {
+  return new Promise(res => {
+    die.classList.add('rolling');
+    let n = 0;
+    const iv = setInterval(() => {
+      face(1 + Math.random() * 6 | 0);
+      beep(180 + Math.random() * 200, .03, 'square', .025);
+      if (++n >= 8) {
+        clearInterval(iv);
+        const v = 1 + Math.random() * 6 | 0;
+        face(v); die.classList.remove('rolling'); res(v);
+      }
+    }, RM ? 15 : 70);
+  });
+}
+
+/* tokens and chips */
+function place() {
+  P.forEach((p, i) => {
+    let x, y;
+    if (!p.pos) { x = 4 + i * 7; y = 108; }
+    else {
+      const [cx, cy] = xy(p.pos), same = P.filter(q => q.pos == p.pos), j = same.indexOf(p);
+      const o = same.length > 1 ? [[-2.2, -2.2], [2.2, -2.2], [-2.2, 2.2], [2.2, 2.2]][j] : [0, 0];
+      x = cx + o[0]; y = cy + o[1];
+    }
+    toks[i].style.left = x + '%'; toks[i].style.top = y + '%';
+  });
+  chips();
+}
+function chips() {
+  $('#chips').innerHTML = P.map((p, i) => `<div class="chip ${i == turn && !over ? 'act' : ''}"><span class="sw" style="background:${p.col}"></span><b>${p.name}</b><em>${p.pos ? 'square ' + p.pos : 'at start'}</em></div>`).join('');
+}
+
+/* game flow */
+function start(n) {
+  count = n;
+  P = n == 1
+    ? [{name: 'You', col: COL[0][1], pos: 0, cpu: false}, {name: 'Computer', col: COL[1][1], pos: 0, cpu: true}]
+    : COL.slice(0, n).map(c => ({name: c[0], col: c[1], pos: 0, cpu: false}));
+  $('#toks').innerHTML = '';
+  toks = P.map(p => { const d = document.createElement('div'); d.className = 'tok'; d.style.background = p.col; $('#toks').append(d); return d; });
+  turn = 0; over = false; busy = false;
+  $('#setup').hidden = true; $('#play').hidden = false; $('#win').hidden = true;
+  face(1); place(); setTurn(`${P[0].name === 'You' ? 'You start' : P[0].name + ' starts'}. Roll the die!`);
+}
+
+function setTurn(text) {
+  busy = false; $('#newg').disabled = false;
+  const p = P[turn];
+  toks.forEach((t, i) => t.classList.toggle('act', i == turn && !over));
+  chips();
+  $('#msg').textContent = text;
+  $('#roll').disabled = p.cpu;
+  $('#roll').textContent = p.cpu ? p.name + ' is playing…' : (P.length > 1 && p.name !== 'You' ? p.name + ': roll' : 'Roll');
+  if (p.cpu) setTimeout(roll, RM ? 150 : 1000);
+  else $('#roll').focus({preventScroll: true});
+}
+
+async function roll() {
+  if (busy || over) return;
+  busy = true; $('#roll').disabled = true; $('#newg').disabled = true;
+  const p = P[turn], who = p.name, v = await rollDie();
+  let text = `${who} rolled ${v}`, target = p.pos + v, moved = true;
+  if (target > 100) {
+    moved = false;
+    text += `, but needs exactly ${100 - p.pos} to finish`;
+  } else {
+    $('#msg').textContent = text + '…';
+    for (let s = p.pos + 1; s <= target; s++) { p.pos = s; place(); beep(480 + s % 10 * 25, .05, 'triangle'); await sleep(190); }
+    const j = JUMP[target];
+    if (j) {
+      const up = j > target;
+      await sleep(300);
+      toks[turn].classList.add('slide'); p.pos = j; place();
+      if (up) [523, 659, 784, 1047].forEach((f, i) => beep(f, .14, 'triangle', .07, i * .09));
+      else [440, 370, 311, 247, 196].forEach((f, i) => beep(f, .16, 'sawtooth', .04, i * .08));
+      text += up ? `, climbed a ladder to ${j}! 🪜` : `, slid down a snake to ${j}. 🐍`;
+      await sleep(800);
+      toks[turn].classList.remove('slide');
+    }
+    if (p.pos == 100) return finish(p);
+  }
+  const again = v == 6 && moved;
+  if (again) text += '. A 6, go again!';
+  else { turn = (turn + 1) % P.length; text += `. ${P[turn].name === 'You' ? 'Your' : P[turn].name + '’s'} turn.`; }
+  setTurn(text);
+}
+
+function finish(p) {
+  over = true; $('#newg').disabled = false; toks.forEach(t => t.classList.remove('act')); chips();
+  $('#msg').textContent = `${p.name === 'You' ? 'You reached' : p.name + ' reached'} square 100!`;
+  $('#wt').textContent = p.name === 'You' ? 'You win!' : p.name + ' wins!';
+  [523, 659, 784, 1047, 784, 1047].forEach((f, i) => beep(f, .2, 'triangle', .07, i * .13));
+  setTimeout(() => { $('#win').hidden = false; $('#pa').focus(); confetti(); }, RM ? 100 : 500);
+}
+
+function confetti() {
+  if (RM) return;
+  for (let i = 0; i < 70; i++) {
+    const e = document.createElement('i');
+    e.className = 'cf';
+    e.style.cssText = `left:${Math.random() * 100}vw;background:${COL[i % 4][1]};animation-delay:${Math.random() * .7}s;animation-duration:${2 + Math.random() * 1.6}s`;
+    document.body.append(e); setTimeout(() => e.remove(), 4600);
+  }
+}
+
+document.querySelectorAll('.opts button').forEach(b => b.onclick = () => start(+b.dataset.n));
+$('#roll').onclick = roll;
+$('#pa').onclick = () => start(count);
+$('#cp').onclick = $('#newg').onclick = () => { over = true; busy = false; $('#win').hidden = true; $('#play').hidden = true; $('#setup').hidden = false; };
+</script>
+</body>
+</html>
